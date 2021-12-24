@@ -1,3 +1,3 @@
 #Median filter
 
-Filtration image from noise
+Filter for reducing noise in the image

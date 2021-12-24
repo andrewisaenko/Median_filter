@@ -80,7 +80,8 @@ namespace median_filter
         {
             if (pictureBox1.Image != null)
             {
-                Stopwatch time = new Stopwatch();                
+                Stopwatch time = new Stopwatch();
+                int matrixSire;
                 Bitmap image = new Bitmap(pictureBox1.Image);
                 Bitmap output;                
                 int n = Convert.ToInt32(maskedTextBox1.Text);
