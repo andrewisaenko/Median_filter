@@ -88,9 +88,7 @@ namespace median_filter
 
         public static Bitmap MedianFilter(object obj_input, int matrixSize)
         {
-
             Bitmap input = (Bitmap)obj_input;
-
             Bitmap output = new Bitmap(input.Width, input.Height);
 
             //devide image to R, G, B channels
@@ -102,9 +100,9 @@ namespace median_filter
             uint[,] n_G = new uint[input.Width, input.Height];
             uint[,] n_B = new uint[input.Width, input.Height];
 
-            //filling R, G, B massives with appropriate value of the color of pixel
-            int midOfMatrix = Convert.ToInt32(Math.Floor(matrixSize/2f));
+            int midOfMatrix = Convert.ToInt32(Math.Floor(matrixSize / 2f));
 
+            //filling R, G, B massives with appropriate value of the color of pixel
             for (int j = midOfMatrix; j < input.Height + midOfMatrix; j++)
             {
                 for (int i = midOfMatrix; i < input.Width + midOfMatrix; i++)
@@ -125,8 +123,7 @@ namespace median_filter
             MakeMedianArr(o_G, n_G, midOfMatrix);
             MakeMedianArr(o_B, n_B, midOfMatrix);
 
-
-
+            //Creating new pixels from filtered arrays of R, G, B chanels
             for (int j = 0; j < input.Height; j++)
             {
                 for (int i = 0; i < input.Width; i++)
@@ -137,29 +134,29 @@ namespace median_filter
             }
             return output;
         }
-
-        static void MakeMedianArr(uint[,] arr, uint[,] new_arr, int midOfMatrix)
+       
+        private static void MakeMedianArr(uint[,] arr, uint[,] new_arr, int midOfMatrix)
         {
-            for (int i = 1; i < arr.GetLength(0) - 1; i++)
+            for (int i = midOfMatrix; i <= arr.GetUpperBound(0) - midOfMatrix; i++)
             {
-                for (int j = 1; j < arr.GetLength(1) - 1; j++)
-                {       
+                for (int j = midOfMatrix; j <= arr.GetUpperBound(1) - midOfMatrix; j++)
+                {
                     //going through the matrix with flexible size around the current element 
                     List<uint> matrix = new List<uint>();
-                    for(int iInMatrix = i - midOfMatrix; iInMatrix < i + midOfMatrix; iInMatrix++)
+                    for (int iInMatrix = i - midOfMatrix; iInMatrix <= i + midOfMatrix; iInMatrix++)
                     {
-                        for(int jInMatrix = j - midOfMatrix; jInMatrix < j + midOfMatrix; jInMatrix++)
+                        for (int jInMatrix = j - midOfMatrix; jInMatrix <= j + midOfMatrix; jInMatrix++)
                         {
                             matrix.Add(arr[iInMatrix, jInMatrix]);
                         }
                     }
                     matrix.Sort();
-                    arr[i-1, j-1] = matrix[midOfMatrix];
+                    new_arr[i - midOfMatrix, j - midOfMatrix] = matrix[Convert.ToInt32(Math.Floor(matrix.Count / 2f))];
                 }
             }
         }
 
-        static void FillBorder(uint[,] arr, int midOfMatrix)
+        private static void FillBorder(uint[,] arr, int midOfMatrix)
         {
             for (int mof = midOfMatrix; mof > 0; mof--)
             {

@@ -70,58 +70,61 @@ namespace median_filter
             if (pictureBox1.Image != null)
             {
                 Stopwatch time = new Stopwatch();
+
                 int matrixSize = 3;
                 if(matrixSizeTB.Text != "" && Convert.ToInt32(matrixSizeTB.Text) > 3 && Convert.ToInt32(matrixSizeTB.Text)%2 != 0)
                 {
                     matrixSize = Convert.ToInt32(matrixSizeTB.Text);
                 }
-                Bitmap image = new Bitmap(pictureBox1.Image);
-                Bitmap output;                
-                int n = Convert.ToInt32(maskedTextBox1.Text);
-                                               
-                if (n <= 0)
+                else if(matrixSizeTB.Text != "" && (Convert.ToInt32(matrixSizeTB.Text) < 3 || Convert.ToInt32(matrixSizeTB.Text) % 2 == 0))
                 {
-                    MessageBox.Show("Потоков должно быть больше 0!");
+                    MessageBox.Show("Invalid size of manrix!");
+                    return;
                 }
-                else if (n == 1)
+                
+                int numOfThreads = 1;
+                if (maskedTextBox1.Text != "" && Convert.ToInt32(maskedTextBox1.Text) > 1)
                 {
+                    numOfThreads = Convert.ToInt32(maskedTextBox1.Text);
+                }
+              
+                Bitmap image = new Bitmap(pictureBox1.Image);
+                Bitmap output;
+
+                if (numOfThreads == 1)
+                {
+                    //filtering with one thread
                     time.Start();
                     output = ImageFunc.MedianFilter(image, matrixSize);
                     time.Stop();
-                    pictureBox2.Image = output;
-                    MessageBox.Show($"t = {time.ElapsedMilliseconds}ms");
                 }
                 else
                 {
-                    Bitmap[] img_parts = ImageFunc.DevideImage(image, n);
+                    //filtering with N threads
+                    Bitmap[] img_parts = ImageFunc.DevideImage(image, numOfThreads);
 
-                    Task[] tasks = new Task[n];
+                    Task[] tasks = new Task[numOfThreads];
 
-                    for (int i = 0; i < n; i++)
-                    {
-                        time.Start();
+                    time.Start();
+                    for (int i = 0; i < numOfThreads; i++)
+                    {                        
                         tasks[i] = new Task(() => { img_parts[i] = ImageFunc.MedianFilter(img_parts[i], matrixSize); });
                         tasks[i].Start();
-                        Thread.Sleep(n-1);
+                        Thread.Sleep(numOfThreads - 1);
                     }
-
                     Task.WaitAll(tasks);
-
                     output = ImageFunc.CombineImage(img_parts);
                     time.Stop();
-
-                    pictureBox2.Image = output;
-
-                    MessageBox.Show($"t = {time.ElapsedMilliseconds}ms");
-                }                
+                }
+                
+                pictureBox2.Image = output;
+                MessageBox.Show($"t = {time.ElapsedMilliseconds}ms");
             }     
         }            
         
         private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
         {
             maskedTextBox1.Mask = "00";            
-        }
-
-       
+        }       
     }
 }
